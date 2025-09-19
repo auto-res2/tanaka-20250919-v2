@@ -121,6 +121,8 @@ def compute_loss(model, batch, config):
         max_len = max(chosen_input_ids.shape[1], rejected_input_ids.shape[1])
         
         def pad_and_gather(log_probs, labels, prompt_len, target_len):
+            if log_probs.dim() == 2:
+                log_probs = log_probs.unsqueeze(0)
             if labels.dim() == 1:
                 labels = labels.unsqueeze(0)
             

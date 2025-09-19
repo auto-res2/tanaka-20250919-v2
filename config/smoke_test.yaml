@@ -20,7 +20,7 @@ training_args:
   bf16: true
   seed: 42
   logging_steps: 1
-  output_dir: "./.research/iteration4/smoke_test_output"
+  output_dir: "./.research/iteration5/smoke_test_output"
   loss_params:
     lambda_tok: 0.3
     kappa: 3.0

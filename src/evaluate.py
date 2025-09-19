@@ -226,7 +226,7 @@ def save_evaluation_plots(results, config):
     """Save evaluation results as plots to the images directory."""
     import os
     
-    output_dir = config.get('training_args', {}).get('output_dir', './.research/iteration4')
+    output_dir = config.get('training_args', {}).get('output_dir', './.research/iteration5')
     if 'base_training_args' in config:
         output_dir = config['base_training_args']['output_dir']
     images_dir = os.path.join(output_dir, 'images')
