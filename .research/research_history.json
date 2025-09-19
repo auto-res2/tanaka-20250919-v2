@@ -3,5 +3,19 @@
   "queries": [
     "LLM fine-tuning novel loss",
     "custom loss function LLM"
+  ],
+  "research_study_list": [
+    {
+      "title": "Beyond Imitation: Leveraging Fine-grained Quality Signals for Alignment"
+    },
+    {
+      "title": "Selecting Large Language Model to Fine-tune via Rectified Scaling Law"
+    },
+    {
+      "title": "Discovering Preference Optimization Algorithms with and for Large Language Models"
+    },
+    {
+      "title": "Language Generation with Strictly Proper Scoring Rules"
+    }
   ]
 }
