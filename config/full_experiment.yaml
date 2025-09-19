@@ -17,7 +17,7 @@ base_training_args:
   logging_steps: 100
   save_steps: 500
   eval_steps: 500
-  output_dir: "./.research/iteration2"
+  output_dir: "./.research/iteration3"
 lora_config:
   r: 64
   lora_alpha: 16
