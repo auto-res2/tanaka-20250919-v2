@@ -1,0 +1,66 @@
+experiment_name: "full_scale_comparison"
+model_name: "meta-llama/Llama-2-7b-hf"
+datasets:
+  - name: "argilla/dpo-mix-7k"
+  - name: "Anthropic/hh-rlhf"
+data_params:
+  max_seq_length: 2048
+  val_split_percentage: 5
+base_training_args:
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_steps: 80
+  max_steps: 9400
+  bf16: true
+  logging_steps: 100
+  save_steps: 500
+  eval_steps: 500
+  output_dir: "./.research/iteration1"
+lora_config:
+  r: 64
+  lora_alpha: 16
+  lora_dropout: 0.05
+  target_modules: ["q_proj", "v_proj", "k_proj", "o_proj"]
+evaluation:
+  eval_datasets: ["mmlu", "gsm8k", "truthfulqa", "triviaqa", "advbench"]
+  max_eval_samples: 1000
+  per_device_eval_batch_size: 4
+experiment_runs:
+  - name: "GAPO_seed42"
+    seed: 42
+    loss_type: "gapo"
+    loss_params:
+      lambda_tok: 0.3
+      kappa: 3.0
+      beta: 0.1
+  - name: "GAPO_seed43"
+    seed: 43
+    loss_type: "gapo"
+    loss_params:
+      lambda_tok: 0.3
+      kappa: 3.0
+      beta: 0.1
+  - name: "GAPO_seed44"
+    seed: 44
+    loss_type: "gapo"
+    loss_params:
+      lambda_tok: 0.3
+      kappa: 3.0
+      beta: 0.1
+  - name: "DPO_baseline_seed42"
+    seed: 42
+    loss_type: "dpo"
+    loss_params:
+      beta: 0.1
+  - name: "DPO_baseline_seed43"
+    seed: 43
+    loss_type: "dpo"
+    loss_params:
+      beta: 0.1
+  - name: "DPO_baseline_seed44"
+    seed: 44
+    loss_type: "dpo"
+    loss_params:
+      beta: 0.1

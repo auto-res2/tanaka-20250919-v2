@@ -1,0 +1,36 @@
+experiment_name: "smoke_test"
+model_name: "meta-llama/Llama-2-7b-hf"
+datasets:
+  - name: "argilla/dpo-mix-7k"
+    split: "train[:1%]"
+  - name: "Anthropic/hh-rlhf"
+    split: "train[:1%]"
+data_params:
+  max_seq_length: 512
+  val_split_percentage: 20
+training_args:
+  loss_type: "gapo"
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 2
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_steps: 2
+  max_steps: 10
+  bf16: true
+  seed: 42
+  logging_steps: 1
+  output_dir: "./.research/iteration1/smoke_test_output"
+  loss_params:
+    lambda_tok: 0.3
+    kappa: 3.0
+    beta: 0.1
+lora_config:
+  r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+  target_modules: ["q_proj", "v_proj"]
+evaluation:
+  eval_datasets: ["mmlu"]
+  max_eval_samples: 16
+  per_device_eval_batch_size: 2
