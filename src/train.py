@@ -121,6 +121,9 @@ def compute_loss(model, batch, config):
         max_len = max(chosen_input_ids.shape[1], rejected_input_ids.shape[1])
         
         def pad_and_gather(log_probs, labels, prompt_len, target_len):
+            if labels.dim() == 1:
+                labels = labels.unsqueeze(0)
+            
             pad_len = target_len - log_probs.shape[1]
             if pad_len > 0:
                 padded_log_probs = F.pad(log_probs, (0, 0, 0, pad_len))
@@ -133,7 +136,7 @@ def compute_loss(model, batch, config):
             labels_clamped = padded_labels.clamp(min=0)
             gathered = torch.gather(padded_log_probs, -1, labels_clamped.unsqueeze(-1)).squeeze(-1)
             gathered[padded_labels == -100] = 0 # Set ignored tokens to 0
-            return gathered, padded_labels != -100
+            return gathered.squeeze(0), (padded_labels != -100).squeeze(0)
 
         # This part is complex. We compute per-token gains.
         gains = []
