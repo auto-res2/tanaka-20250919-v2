@@ -147,12 +147,18 @@ def compute_loss(model, batch, config):
         for i in range(len(prompt_lengths)):
             prompt_len = prompt_lengths[i]
             logp_c, mask_c = pad_and_gather(log_probs_chosen[i], labels_chosen[i], prompt_len, max_len)
-            logp_r, _ = pad_and_gather(log_probs_rejected[i], labels_chosen[i], prompt_len, max_len) # use chosen labels for rejected too
+            logp_r, _ = pad_and_gather(log_probs_rejected[i], labels_rejected[i], prompt_len, max_len) # use rejected labels for rejected
             p_c, _ = pad_and_gather(probs_chosen[i], labels_chosen[i], prompt_len, max_len)
             
-            gains.append(logp_c - logp_r)
-            p_chosen_list.append(p_c)
-            answer_masks.append(mask_c)
+            min_len = min(len(logp_c), len(logp_r))
+            logp_c_aligned = logp_c[:min_len]
+            logp_r_aligned = logp_r[:min_len]
+            mask_c_aligned = mask_c[:min_len]
+            p_c_aligned = p_c[:min_len]
+            
+            gains.append(logp_c_aligned - logp_r_aligned)
+            p_chosen_list.append(p_c_aligned)
+            answer_masks.append(mask_c_aligned)
 
         g_t = torch.stack(gains)
         p_chosen_t = torch.stack(p_chosen_list)
