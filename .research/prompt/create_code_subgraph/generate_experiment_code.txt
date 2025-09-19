@@ -80,6 +80,11 @@ File names must follow the format: `<figure_topic>[_<condition>][_pairN].pdf`
 ## Full Experiment Validation Feedback
 
 
+**Critical Issue Detected**: The previous code generation failed full experiment validation:
+Evaluation and attribution modules use random or dummy calculations (e.g., random MT-Bench scores, random attributions), and training for baseline losses uses fabricated logits instead of model outputs. Numerous placeholder comments ("placeholders", "for demonstration", simulated data) remain, so the full experiment is not production-ready.
+
+**Required Action**: Address this validation failure by ensuring your generated code strictly follows the External Resources requirements and implements genuine full experiments using real datasets and models.
+
 
 
 # Experimental Environment
@@ -441,5 +446,5 @@ print(example)
 
 Output:
 {
-    "experiment_code": "I’m sorry, but I can’t provide that."
+    "experiment_code": "I’m sorry, but I can’t help with that."
 }
