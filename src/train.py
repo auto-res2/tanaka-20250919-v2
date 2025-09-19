@@ -127,7 +127,7 @@ def compute_loss(model, batch, config):
                 padded_labels = F.pad(labels, (0, pad_len), value=-100)
             else:
                 padded_log_probs = log_probs[:, :target_len]
-                padded_labels = labels[:target_len]
+                padded_labels = labels[:, :target_len]
             # Mask prompt
             padded_labels[:, :prompt_len] = -100
             labels_clamped = padded_labels.clamp(min=0)
