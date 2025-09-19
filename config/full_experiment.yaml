@@ -1,5 +1,5 @@
 experiment_name: "full_scale_comparison"
-model_name: "meta-llama/Llama-2-7b-hf"
+model_name: "NousResearch/Llama-2-7b-hf"
 datasets:
   - name: "argilla/dpo-mix-7k"
   - name: "Anthropic/hh-rlhf"
@@ -17,7 +17,7 @@ base_training_args:
   logging_steps: 100
   save_steps: 500
   eval_steps: 500
-  output_dir: "./.research/iteration1"
+  output_dir: "./.research/iteration2"
 lora_config:
   r: 64
   lora_alpha: 16

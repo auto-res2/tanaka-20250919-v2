@@ -1,5 +1,5 @@
 experiment_name: "smoke_test"
-model_name: "meta-llama/Llama-2-7b-hf"
+model_name: "NousResearch/Llama-2-7b-hf"
 datasets:
   - name: "argilla/dpo-mix-7k"
     split: "train[:1%]"
@@ -20,7 +20,7 @@ training_args:
   bf16: true
   seed: 42
   logging_steps: 1
-  output_dir: "./.research/iteration1/smoke_test_output"
+  output_dir: "./.research/iteration2/smoke_test_output"
   loss_params:
     lambda_tok: 0.3
     kappa: 3.0

@@ -218,4 +218,43 @@ def run_evaluation(model, tokenizer, config):
     print(json.dumps(results, indent=2))
     print("--------------------------\n")
     
+    save_evaluation_plots(results, config)
+    
     return results
+
+def save_evaluation_plots(results, config):
+    """Save evaluation results as plots to the images directory."""
+    import os
+    
+    output_dir = config.get('training_args', {}).get('output_dir', './.research/iteration2')
+    if 'base_training_args' in config:
+        output_dir = config['base_training_args']['output_dir']
+    images_dir = os.path.join(output_dir, 'images')
+    os.makedirs(images_dir, exist_ok=True)
+    
+    metrics = []
+    values = []
+    for key, value in results.items():
+        if isinstance(value, (int, float)) and key != 'wall_clock_time_seconds':
+            metrics.append(key.replace('_', ' ').title())
+            values.append(value)
+    
+    if metrics:
+        plt.figure(figsize=(12, 8))
+        bars = plt.bar(metrics, values)
+        plt.title('Evaluation Results Summary')
+        plt.ylabel('Score')
+        plt.xticks(rotation=45, ha='right')
+        
+        for bar, value in zip(bars, values):
+            plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+                    f'{value:.3f}', ha='center', va='bottom')
+        
+        plt.tight_layout()
+        plot_path = os.path.join(images_dir, 'evaluation_summary.png')
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"Evaluation plot saved to: {plot_path}")
+    else:
+        print("No numeric metrics found for plotting")

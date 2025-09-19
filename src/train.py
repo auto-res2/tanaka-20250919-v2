@@ -60,7 +60,8 @@ def _get_batch_logps(model, input_ids, attention_mask, prompt_lengths):
     # Get per-token log probabilities
     log_probs = F.log_softmax(logits, dim=-1)
     # Gather the logps of the true tokens
-    token_logps = torch.gather(log_probs, -1, labels.unsqueeze(-1)).squeeze(-1)
+    labels_clamped = labels.clamp(min=0)
+    token_logps = torch.gather(log_probs, -1, labels_clamped.unsqueeze(-1)).squeeze(-1)
 
     # Replace ignored indices (-100) with 0 for summation
     token_logps[labels == -100] = 0
@@ -125,7 +126,8 @@ def compute_loss(model, batch, config):
             padded_labels = F.pad(labels, (0, pad_len), value=-100)
             # Mask prompt
             padded_labels[:, :prompt_len] = -100
-            gathered = torch.gather(padded_log_probs, -1, padded_labels.unsqueeze(-1).clamp(min=0)).squeeze(-1)
+            labels_clamped = padded_labels.clamp(min=0)
+            gathered = torch.gather(padded_log_probs, -1, labels_clamped.unsqueeze(-1)).squeeze(-1)
             gathered[padded_labels == -100] = 0 # Set ignored tokens to 0
             return gathered, padded_labels != -100
 
