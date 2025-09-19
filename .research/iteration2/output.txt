@@ -1,0 +1,10 @@
+=== uv sync start Fri Sep 19 06:57:40 AM UTC 2025 ===
+=== uv install end Fri Sep 19 06:57:44 AM UTC 2025 ===
+=== [PHASE 1/2] Smoke test start Fri Sep 19 06:57:44 AM UTC 2025 ===
+--- Running Smoke Test ---
+Loading model and tokenizer...
+trainable params: 4,194,304 || all params: 6,742,609,920 || trainable%: 0.0622
+Loading and preparing datasets...
+Warning: HF_TOKEN environment variable not set. May fail to download gated models/datasets.
+Dataset prepared: 1273 training samples, 325 validation samples.
+Starting model training...

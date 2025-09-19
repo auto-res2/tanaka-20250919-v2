@@ -1,0 +1,126 @@
+Using CPython 3.11.13
+Creating virtual environment at: .venv
+warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+Resolved 83 packages in 251ms
+Installed 80 packages in 3.99s
+ + accelerate==1.10.1
+ + aiohappyeyeballs==2.6.1
+ + aiohttp==3.12.15
+ + aiosignal==1.4.0
+ + attrs==25.3.0
+ + bitsandbytes==0.47.0
+ + certifi==2025.8.3
+ + charset-normalizer==3.4.3
+ + contourpy==1.3.3
+ + cycler==0.12.1
+ + datasets==4.1.1
+ + dill==0.4.0
+ + filelock==3.19.1
+ + fonttools==4.60.0
+ + frozenlist==1.7.0
+ + fsspec==2025.9.0
+ + fvcore==0.1.5.post20221221
+ + hf-xet==1.1.10
+ + huggingface-hub==0.35.0
+ + idna==3.10
+ + iopath==0.1.10
+ + jinja2==3.1.6
+ + joblib==1.5.2
+ + kiwisolver==1.4.9
+ + markupsafe==3.0.2
+ + matplotlib==3.10.6
+ + mpmath==1.3.0
+ + multidict==6.6.4
+ + multiprocess==0.70.16
+ + networkx==3.5
+ + numpy==2.3.3
+ + nvidia-cublas-cu12==12.8.4.1
+ + nvidia-cuda-cupti-cu12==12.8.90
+ + nvidia-cuda-nvrtc-cu12==12.8.93
+ + nvidia-cuda-runtime-cu12==12.8.90
+ + nvidia-cudnn-cu12==9.10.2.21
+ + nvidia-cufft-cu12==11.3.3.83
+ + nvidia-cufile-cu12==1.13.1.3
+ + nvidia-curand-cu12==10.3.9.90
+ + nvidia-cusolver-cu12==11.7.3.90
+ + nvidia-cusparse-cu12==12.5.8.93
+ + nvidia-cusparselt-cu12==0.7.1
+ + nvidia-nccl-cu12==2.27.3
+ + nvidia-nvjitlink-cu12==12.8.93
+ + nvidia-nvtx-cu12==12.8.90
+ + packaging==25.0
+ + pandas==2.3.2
+ + peft==0.17.1
+ + pillow==11.3.0
+ + portalocker==3.2.0
+ + propcache==0.3.2
+ + psutil==7.1.0
+ + pyarrow==21.0.0
+ + pyparsing==3.2.4
+ + python-dateutil==2.9.0.post0
+ + pytz==2025.2
+ + pyyaml==6.0.2
+ + regex==2025.9.18
+ + requests==2.32.5
+ + safetensors==0.6.2
+ + scikit-learn==1.7.2
+ + scipy==1.16.2
+ + seaborn==0.13.2
+ + setuptools==80.9.0
+ + six==1.17.0
+ + sympy==1.14.0
+ + tabulate==0.9.0
+ + termcolor==3.1.0
+ + threadpoolctl==3.6.0
+ + tokenizers==0.22.0
+ + torch==2.8.0
+ + tqdm==4.67.1
+ + transformers==4.56.1
+ + triton==3.4.0
+ + typing-extensions==4.15.0
+ + tzdata==2025.2
+ + urllib3==2.5.0
+ + xxhash==3.5.0
+ + yacs==0.1.8
+ + yarl==1.20.1
+warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+`torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [02:06<02:06, 126.01s/it]Fetching 2 files: 100%|██████████| 2/2 [02:06<00:00, 63.00s/it] 
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:16<00:16, 16.98s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 10.84s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 11.76s/it]
+Generating train split:   0%|          | 0/6750 [00:00<?, ? examples/s]Generating train split:  89%|████████▉ | 6000/6750 [00:00<00:00, 47150.85 examples/s]Generating train split: 100%|██████████| 6750/6750 [00:00<00:00, 30848.17 examples/s]
+Generating test split:   0%|          | 0/750 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 750/750 [00:00<00:00, 31845.80 examples/s]
+Map (num_proc=4):   0%|          | 0/68 [00:00<?, ? examples/s]Map (num_proc=4):  25%|██▌       | 17/68 [00:00<00:00, 53.79 examples/s]Map (num_proc=4): 100%|██████████| 68/68 [00:00<00:00, 129.24 examples/s]
+Filter:   0%|          | 0/68 [00:00<?, ? examples/s]Filter: 100%|██████████| 68/68 [00:00<00:00, 2124.30 examples/s]
+Generating train split:   0%|          | 0/160800 [00:00<?, ? examples/s]Generating train split:   5%|▍         | 7672/160800 [00:00<00:04, 36981.78 examples/s]Generating train split:  10%|▉         | 15358/160800 [00:00<00:03, 44550.47 examples/s]Generating train split:  14%|█▍        | 23053/160800 [00:00<00:02, 48083.37 examples/s]Generating train split:  19%|█▉        | 30676/160800 [00:00<00:02, 49569.47 examples/s]Generating train split:  24%|██▍       | 38351/160800 [00:00<00:02, 50717.58 examples/s]Generating train split:  31%|███       | 49138/160800 [00:01<00:02, 48928.31 examples/s]Generating train split:  35%|███▍      | 55792/160800 [00:01<00:02, 47801.72 examples/s]Generating train split:  39%|███▉      | 62408/160800 [00:01<00:02, 46952.36 examples/s]Generating train split:  43%|████▎     | 69078/160800 [00:01<00:01, 46524.74 examples/s]Generating train split:  47%|████▋     | 75820/160800 [00:01<00:01, 46012.63 examples/s]Generating train split:  51%|█████▏    | 82424/160800 [00:01<00:01, 44716.14 examples/s]Generating train split:  55%|█████▌    | 89143/160800 [00:02<00:02, 35426.98 examples/s]Generating train split:  59%|█████▉    | 94721/160800 [00:02<00:02, 28729.45 examples/s]Generating train split:  62%|██████▏   | 100249/160800 [00:02<00:02, 25051.83 examples/s]Generating train split:  64%|██████▍   | 103090/160800 [00:02<00:02, 23846.72 examples/s]Generating train split:  66%|██████▌   | 105939/160800 [00:02<00:02, 22801.71 examples/s]Generating train split:  67%|██████▋   | 108379/160800 [00:03<00:02, 21773.54 examples/s]Generating train split:  71%|███████   | 113512/160800 [00:03<00:01, 25000.58 examples/s]Generating train split:  74%|███████▍  | 118702/160800 [00:03<00:01, 27575.64 examples/s]Generating train split:  77%|███████▋  | 123909/160800 [00:03<00:01, 29541.10 examples/s]Generating train split:  80%|████████  | 129176/160800 [00:03<00:01, 31115.13 examples/s]Generating train split:  84%|████████▎ | 134358/160800 [00:03<00:00, 32204.80 examples/s]Generating train split:  87%|████████▋ | 139545/160800 [00:03<00:00, 32929.00 examples/s]Generating train split:  90%|████████▉ | 144714/160800 [00:04<00:00, 33392.35 examples/s]Generating train split:  93%|█████████▎| 149906/160800 [00:04<00:00, 33714.79 examples/s]Generating train split:  96%|█████████▋| 155034/160800 [00:04<00:00, 33853.70 examples/s]Generating train split: 100%|█████████▉| 160213/160800 [00:04<00:00, 34090.91 examples/s]Generating train split: 100%|██████████| 160800/160800 [00:04<00:00, 32182.85 examples/s]
+Generating test split:   0%|          | 0/8552 [00:00<?, ? examples/s]Generating test split:  55%|█████▍    | 4666/8552 [00:00<00:00, 32464.31 examples/s]Generating test split: 100%|██████████| 8552/8552 [00:00<00:00, 27890.24 examples/s]Generating test split: 100%|██████████| 8552/8552 [00:00<00:00, 26471.12 examples/s]
+Map (num_proc=4):   0%|          | 0/1608 [00:00<?, ? examples/s]Map (num_proc=4):  25%|██▌       | 402/1608 [00:00<00:00, 1342.88 examples/s]Map (num_proc=4): 100%|██████████| 1608/1608 [00:00<00:00, 3019.50 examples/s]
+Filter:   0%|          | 0/1608 [00:00<?, ? examples/s]Filter: 100%|██████████| 1608/1608 [00:00<00:00, 39619.11 examples/s]
+Map (num_proc=4):   0%|          | 0/1675 [00:00<?, ? examples/s]Map (num_proc=4):  25%|██▌       | 419/1675 [00:00<00:02, 553.30 examples/s]Map (num_proc=4): 100%|██████████| 1675/1675 [00:00<00:00, 2311.38 examples/s]Map (num_proc=4): 100%|██████████| 1675/1675 [00:01<00:00, 1482.08 examples/s]
+Filter:   0%|          | 0/1598 [00:00<?, ? examples/s]Filter:  63%|██████▎   | 1000/1598 [00:00<00:00, 2354.35 examples/s]Filter: 100%|██████████| 1598/1598 [00:00<00:00, 2422.30 examples/s]Filter: 100%|██████████| 1598/1598 [00:00<00:00, 2394.86 examples/s]
+Filter:   0%|          | 0/1598 [00:00<?, ? examples/s]Filter:  63%|██████▎   | 1000/1598 [00:00<00:00, 2480.94 examples/s]Filter: 100%|██████████| 1598/1598 [00:00<00:00, 2491.72 examples/s]Filter: 100%|██████████| 1598/1598 [00:00<00:00, 2474.05 examples/s]
+  0%|          | 0/10 [00:00<?, ?it/s]Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/main.py", line 131, in <module>
+    main()
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/main.py", line 124, in main
+    run_experiment(config, is_smoke_test=True)
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/main.py", line 43, in run_experiment
+    run_single_trial(config)
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/main.py", line 87, in run_single_trial
+    trained_model = train_model(config, model, tokenizer, train_dataset, val_dataset)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/train.py", line 253, in train_model
+    loss, loss_dict = compute_loss(model, batch, training_args)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/train.py", line 140, in compute_loss
+    logp_c, mask_c = pad_and_gather(log_probs_chosen[i], labels_chosen[i], prompt_len, max_len)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/src/train.py", line 125, in pad_and_gather
+    padded_log_probs = F.pad(log_probs, (0, 0, 0, pad_len))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/toma/pt80-1-a-28/_work/tanaka-20250919-v2/tanaka-20250919-v2/.venv/lib/python3.11/site-packages/torch/nn/functional.py", line 5290, in pad
+    return torch._C._nn.pad(input, pad, mode, value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: narrow(): length must be non-negative.
+  0%|          | 0/10 [00:02<?, ?it/s]
