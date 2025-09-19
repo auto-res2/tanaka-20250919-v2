@@ -1,0 +1,176 @@
+
+Input:
+You are a cutting-edge AI researcher. Based on the new method described in # New Methods and the experimental policy outlined in # Experiment Strategy, please follow the instructions below and provide a detailed elaboration of the experimental content.
+
+# Instructions
+- For each experiment listed in “Experiment Strategy,” output the detailed experimental plan.
+- Design the details of each experiment assuming the execution environment specified in “Experimental Environment.”
+- The experimental details should include the following:
+    - Machine learning / deep learning models to be used
+        - If necessary, also include baseline models.
+    - Datasets
+    - Dataset preprocessing methods
+    - Data splitting method (train/val/test, cross-validation)
+    - Number of repetitions (number of seeds), averaging method, and selection criteria (best-val, last, early stopping)
+    - Evaluation metrics
+        - Primary and secondary metrics
+        - Examples: Accuracy / F1 / AUROC (classification), RMSE / MAE (regression), mAP (detection), mIoU (segmentation), BLEU / ROUGE / METEOR (generation), NDCG / MRR (ranking), ECE / Brier Score (calibration)
+    - Comparisons
+        - Prior methods (strong baselines, SOTA, simple baselines), etc.
+        - If there are implementation or configuration differences, note the adjustments in footnotes.
+    - Methods for analyzing important hyperparameters (e.g., learning rate, temperature, k, thresholds)
+    - Methods for assessing robustness
+        - Resistance to noise injection, distribution shift (OOD), adversarial perturbations, and domain transfer
+    - Computation of FLOPs, training/inference time, memory usage, and cost / wall-clock time
+    - Example experimental code
+- In addition, describe the experimental details as thoroughly as possible. It is acceptable if the output is long.
+- Avoid excessive redundancy across experiments. When a single experiment can cover multiple validation items, integrate them appropriately.
+- NO-FALLBACK CONSTRAINT: Never suggest using synthetic/dummy/placeholder data - if real datasets are unavailable, the experiment must terminate with clear error messages.
+- "Reference Information from Previous Iteration"
+
+## Output Format
+Please provide:
+- experiment_details: Detailed experimental plan following all the instructions above
+- expected_models: A list of specific model names/architectures that will be used in the experiments (e.g., ["ResNet-50", "BERT-base", "GPT-3.5-turbo"])
+- expected_datasets: A list of specific dataset names that will be used in the experiments (e.g., ["CIFAR-10", "ImageNet", "IMDB Reviews"])
+
+
+# Experimental Environment
+NVIDIA A100
+VRAM：80GB
+RAM：2048 GB
+
+# Current Research Method (Target for Experiment Design)
+Open Problems: • Existing preference-optimisation losses treat answers as atomic objects and therefore cannot tell *which* parts of a reply make it preferred.
+• Token-level methods either need costly external rewrites (FIGA, SPA) or rely on exact edit operations, so they miss improvements that keep the same surface token but change probability mass, style or ordering.
+• We still lack an *end-to-end, fully open* way to extract fine-grained credit from ordinary <chosen,-rejected> pairs that (a) covers *all* tokens—including unchanged ones—and (b) avoids external models or extra data pipelines.
+Methods: Gradient-Attributed Preference Optimisation (GAPO)
+1. Per-token preference attribution
+   a. Run the model on the prompt-chosen and prompt-rejected sequences and collect the conditional log-probabilities ℓ⁺_t and ℓ⁻_t for every answer token t (padding to equal length).
+   b. Define the *marginal preference gain* g_t = ℓ⁺_t − ℓ⁻_t.  A positive g_t means the model already favours the chosen token; a negative value identifies places where the model wrongly prefers the rejected token.
+   c. Normalise g_t by softmax inside each pair to obtain weights w_t = softmax(κ·g_t) with temperature κ.  This turns raw gains into a probability distribution over positions, automatically focusing on the most discriminative tokens whether or not they differ in surface form.
+2. Proper-score local objective
+   For every pair we keep any strong sequence loss L_pref (we use DiscoPOP).  We add a *gradient-attributed Brier loss*
+        L_tok = Σ_t   w_t · (1 − p⁺_t)^2    +   w̄_t · (p⁺_t)^2
+   where p⁺_t is the model probability of the chosen token; w̄_t = (1/|w|) − w_t redistributes mass to encourage probability *decrease* on the complementary set.
+3. Total loss
+        L_GAPO = L_pref  +  λ · L_tok     with λ∈[0,1].
+   Because w_t is data-dependent and sums to 1, GAPO always applies the same expected gradient magnitude, allowing *very small* batch sizes.
+4. Implementation (≤120 LoC on top of DiscoPOP)
+   • single GPU; no external diff library; computes g_t in a vectorised forward pass.
+   • only hyper-parameters: λ (0.1-0.5) and κ (1,3,10).
+Experimental Setup: Model: Llama-2-7B-hf with 64-rank LoRA (works on a 24-GB card).  
+Data: Argilla-DPO-Mix-7k + Anthropic-HH (160k). 5-% validation split.
+Baselines: SFT, DPO, DiscoPOP, TAPS (edit-mask), FIGA(+SPA).
+Metrics:
+A. Alignment – MT-Bench, AlpacaEval-2.0
+B. Calibration – Expected Calibration Error on TriviaQA tokens
+C. Robustness – AdvBench jailbreak success rate
+D. Capability – MMLU, TruthfulQA, GSM8K few-shot
+Ablations:
+   • λ sweep; κ sweep
+   • Replace softmax weighting with uniform to show benefit of attribution
+   • Remove negative complement term (w̄_t)
+Experimental Code: https://github.com/your_name/gapo  (35-line Trainer; fits in Colab)
+Example:
+python train_gapo.py  --model meta-llama/Llama-2-7b-hf  --data ./dpo_mix  --lambda_tok 0.3  --kappa 3
+Expected Result: • +2.2 MT-Bench over DiscoPOP and +0.7 over TAPS, showing that attribution beyond edit spans matters.
+• −35 % ECE versus DiscoPOP, −15 % versus TAPS, confirming proper-score calibration.
+• 7 % lower jailbreak rate than DPO and 3 % lower than TAPS.
+• Ablation: Uniform weights lose ~1.5 MT-Bench; removing complement term hurts calibration → validates design choices.
+• Stable training with batch=2, grad-accum=8 on a single A100 ( < 16 GPU-hours ).
+Expected Conclusion: GAPO demonstrates that simple, self-contained *gradient attribution* is enough to turn coarse <chosen, rejected> pairs into effective token-level supervision, covering even unchanged tokens and eliminating the need for edit matching or external rewrites.  Coupling these attributions with a bounded strictly proper score yields simultaneous gains in alignment, calibration and safety, all with minimal code and hardware.  The idea opens the door to applying attribution-based credit assignment to online RLHF, multimodal models, and privacy-sensitive domains where external corpora or GPT-4 rewrites are untenable.
+
+# Experiment Strategy
+1. Benchmark-level Comparison
+   Goal: Show that GAPO achieves superior downstream quality, calibration and safety while matching or beating compute efficiency of state-of-the-art preference-optimisation methods.
+
+   Protocol
+   • Models:  Llama-2-7B-hf + 64-rank LoRA.  Train four variants from the same SFT checkpoint on one A100-80GB using identical hyper-parameters and 160k training pairs:
+     – DiscoPOP (strong baseline)
+     – TAPS (edit-mask token loss)
+     – FIGA(+SPA) (rewrite-based)
+     – GAPO (ours)
+   • Hardware/Time: mixed-precision, batch=2, grad-accum=8.  All runs capped at 16 GPU-hours to enforce fair compute.
+   • Evaluation suite (all automatic):  
+       A. Alignment – MT-Bench v1.3 (GPT-4 judge) and AlpacaEval-2.0 (Claude-3 judge)  
+       B. Calibration – Token-level ECE on TriviaQA and Natural-Questions  
+       C. Robustness – AdvBench jailbreak success rate (100 adaptive attacks)  
+       D. General Capability – MMLU, GSM8K (5-shot), TruthfulQA MC.
+
+   Success Criterion
+   – +≥1.5 MT-Bench and +≥0.5 AlpacaEval over the strongest baseline.  
+   – ≥15 % lower ECE and ≥5 % lower jailbreak rate.  
+   – No statistically significant drop (Δ<0.5 %) in capability metrics.  
+   – Wall-clock within ±10 % of DiscoPOP.
+
+   What it Demonstrates
+   → Confirms that GAPO’s fine-grained credit assignment translates into higher-quality, better-calibrated and safer answers without extra compute or data.
+
+--------------------------------------------------
+2. Token-level Attribution Quality Study
+   Goal: Verify that the learned per-token weights w_t truly pinpoint the parts of an answer that drive human preference—something prior losses cannot expose.
+
+   Protocol
+   • Dataset: 500 random <prompt, chosen, rejected> pairs from Anthropic-HH not used in training.
+   • Step 1 – Collect model attributions: For GAPO and TAPS, record the top-k (k=5) tokens with highest absolute contribution (w_t for GAPO, edit-mask 1s for TAPS).
+   • Step 2 – Human ground-truth: Ask 3 annotators to highlight up to five tokens that best explain why the chosen answer is better (UI shows diff view but allows marking identical tokens too).  Aggregate with majority vote.
+   • Metrics: token-level Precision@5, Recall@5 and F1 between model-highlighted and human-highlighted tokens; inter-annotator κ>0.6 required.  
+   Hardware: negligible (<1 GB GPU for forward pass) → easy on the A100 box.
+
+   Success Criterion
+   – GAPO improves F1 by ≥20 % relative to TAPS.
+   – Qualitative heat-map visualisations show GAPO often weights tokens that are identical in surface form (e.g., units, qualifiers) yet decisive for correctness, whereas TAPS cannot.
+
+   What it Demonstrates
+   → Provides direct evidence that GAPO’s gradient-based weighting captures truly discriminative content beyond simple string edits, validating the core methodological claim.
+
+--------------------------------------------------
+3. Low-Resource & Stability Stress-Test
+   Goal: Highlight GAPO’s robustness when compute or data are scarce—a major practical advantage of its normalised per-pair gradients.
+
+   Protocol
+   • Two axes:
+     A. Batch-size sweep: {2,1,0.5} (the last via gradient accumulation);
+     B. Data-size sweep: {100 %, 25 %, 5 %} of the 160k preference pairs.
+   • Train DiscoPOP and GAPO under every (batch, data) setting for an equal 4 GPU-hours each (fits the A100 easily).
+   • Evaluate on MT-Bench and token-level ECE.
+
+   Success Criterion
+   – Under the most extreme setting (batch=0.5, data=5 %) GAPO retains ≥85 % of its full-data MT-Bench score and keeps ECE within +0.02, whereas DiscoPOP drops below 70 % and ECE worsens by ≥0.05.
+   – Training logs show no learning-rate explosions or divergence for GAPO, while DiscoPOP requires gradient-norm clipping adjustments at batch<1.
+
+   What it Demonstrates
+   → Shows that GAPO’s constant-magnitude, per-pair objective yields stable gradients and data efficiency, making it attractive for on-device or domain-specific fine-tuning where preferences are scarce.
+
+Combined, these three experiments evaluate effectiveness from (1) end-task performance, (2) interpretability of the fine-grained credit signal, and (3) practical robustness—collectively substantiating the advantages claimed for Gradient-Attributed Preference Optimisation.
+
+---
+
+
+# Reference Information from Previous Iteration
+
+Output:
+{
+    "experiment_details": "===================================================================\nEXPERIMENT-1  Benchmark-level Comparison\n===================================================================\n1. Models / Variants\n   • Base backbone: \"meta-llama/Llama-2-7b-hf\" (7.0B params, 32-k vocab)\n   • All variants share the same 64-rank LoRA adaptation (α=16, dropout=0.05) and identical SFT initialisation weights.\n        – Variant-A  DiscoPOP              (strong baseline)\n        – Variant-B  TAPS                 (edit-mask token loss)\n        – Variant-C  FIGA(+SPA)           (rewrite-based)\n        – Variant-D  GAPO                 (ours)\n   • LoRA is frozen during evaluation; only adapter weights are updated during training.\n\n2. Datasets\n   Training-pairs (160 k)\n      a. Argilla-DPO-Mix-7k (community-curated)\n      b. Anthropic-HH (RLHF) 153 k\n   Evaluation\n      – MT-Bench v1.3 (211 prompts)\n      – AlpacaEval-2.0 (805 prompts)\n      – TriviaQA (unfiltered) & Natural-Questions – for ECE\n      – AdvBench (100 adversarial prompts)\n      – MMLU dev (5-shot), GSM8K test (5-shot), TruthfulQA MC (0-shot)\n\n3. Pre-processing\n   • Tokeniser: llama-2 SentencePiece, bos_token=\"<s>\", eos_token=\"</s>\".\n   • Prompt concatenation pattern:  \"<s>[INST] {user_prompt} [/INST] {assistant_answer} </s>\"\n   • Sequence length capped at 2048 tokens; longer samples are truncated after the assistant answer.\n   • Rejected answer padding: right-pad with <pad> to match chosen length; attention_mask zeros on pad.\n   • All numerical fields stored in bf16 to conserve memory.\n\n4. Splitting & Seed handling\n   • 95 % train / 5 % validation using a deterministic SHA-1 hash(user_prompt) mod 20.\n   • Three independent seeds  – 42, 43, 44.  For each seed we train all four variants.\n   • Early-stopping on validation L_pref with patience 1 epoch (≈3 k steps).  If no plateau, stop at 1.2× the patience steps.\n   • For reporting we average the test metrics across the three seeds, then compute bootstrap 95 % CIs (10 k resamples).\n\n5. Optimiser & Hyper-parameters (identical across variants unless noted)\n   • AdamW(β1=0.9, β2=0.95, eps=1e-8, weight_decay=0.01)\n   • lr=2e-5, cosine schedule with 80 warm-up steps.\n   • batch_size_per_gpu=2, grad_accum_steps=8  → effective batch=16 sequences.\n   • Max train wall-time = 16 GPU-hours ≈ 9.4 k optimisation steps.\n   • GAPO-specific grid: λ∈{0.1,0.3,0.5}, κ∈{1,3,10}.  Choose combination giving best val MT-Bench on seed-42 and lock for other seeds (to avoid unfair tuning).\n\n6. Evaluation Metrics\n   A. Alignment            → MT-Bench score (GPT-4 judge), AlpacaEval score (Claude-3 judge)  [primary]\n   B. Calibration          → Token-ECE (bin=20) + Brier score on TriviaQA + NQ             [secondary]\n   C. Robustness           → Jailbreak success rate on AdvBench (lower better)             [primary]\n   D. Capability           → MMLU-acc, GSM8K-acc, TruthfulQA-MC-acc                        [safety guard]\n   E. Efficiency           → Train FLOPs, inference tokens/s, peak GPU mem, wall-clock.\n\n7. Statistical Tests\n   • Two-sided paired t-test (prompt-by-prompt) between GAPO and strongest baseline; Bonferroni corrected α=0.05.\n   • For ECE and jailbreak rate use bootstrap CI overlap.\n\n8. Hyper-parameter Sensitivity Study\n   • λ sweep holding κ=3.\n   • κ sweep holding λ=0.3.\n   • Record MT-Bench, ECE, gradient-norm variance.\n\n9. Robustness Checks\n   • Noise injection: add 20 % Gaussian noise (σ=0.01) to adapter weights at test-time, re-measure MT-Bench.\n   • OOD shift: evaluate on Stack-Overflow JuicedEval.\n   • Adversarial perturbation: HotFlip single-token attacks (50 samples).\n\n10. Efficiency Measurement\n   • FLOPs:   2 × (#params trainable=8.9 M) × seq_len (≈1024 avg) × steps (≈9.4 k) × 3 (forward+backward+optim).\n     → ≈ 55 TFLOPs / run; tracked with fvcore FlopCountAnalysis.\n   • Peak GPU MEM recorded with nvidia-smi –query-gpu=memory.used every 30 s.\n   • Wall-clock logged via time.time().\n\n11. Example Code\n   ```bash\n   # variant flags: --loss {discopop|taps|figa|gapo}\n   torchrun --nproc_per_node=1 train_pref.py \\\n       --model meta-llama/Llama-2-7b-hf \\\n       --data_dir ./pref_pairs \\\n       --lora_rank 64 --batch 2 --grad_accum 8 \\\n       --lr 2e-5 --max_steps 9400 --bf16 \\\n       --loss gapo --lambda_tok 0.3 --kappa 3 --seed 42\n   ```\n\n===================================================================\nEXPERIMENT-2  Token-level Attribution Quality Study\n===================================================================\n1. Models\n   • GAPO-trained checkpoint (best-val from Exp-1, seed-42)\n   • TAPS-trained checkpoint (best-val seed-42)\n\n2. Dataset\n   • 500 unseen Anthropic-HH preference triples held-out from training (guaranteed disjoint via hashing).\n   • Human annotation interface served via LabelStudio.\n\n3. Procedure\n   Step-A  Model Attribution\n        – Run chosen & rejected through model, capture w_t (GAPO) or binary edit mask (TAPS).\n        – For each prompt, select top-5 tokens by |w_t|.  If multiple equal weights, tie-break by earlier position.\n   Step-B  Human Ground-truth\n        – Three annotators (NLP grad students) independently highlight ≤5 tokens per pair that justify preference.\n        – Require Cohen-κ>0.6; pairs below this threshold flagged, repeated with a fourth annotator.\n        – Majority vote → binary mask.\n   Step-C  Scoring   Precision@5, Recall@5, F1@5.\n\n4. Metrics Reporting\n   • macro-averaged across 500 pairs; 95 % bootstrap CI.\n   • additionally show heat-map overlays for 10 qualitative examples.\n\n5. Compute\n   • Only forward passes ⇒ <5 min on a single A100; peak MEM 12 GB.\n\n6. Example Code Snippet\n   ```python\n   from gapo import score_tokens\n   attributions = score_tokens(model, prompt, chosen, rejected)   # returns w_t\n   top5_idx = attributions.abs().topk(5).indices\n   ```\n\n===================================================================\nEXPERIMENT-3  Low-Resource & Stability Stress-Test\n===================================================================\n1. Model Variants\n   • DiscoPOP (baseline)   • GAPO (ours)\n\n2. Axes and Grid\n   Batch sizes:   {2, 1, 0.5}  → implemented as grad_accum {8,16,32} respectively.\n   Data fractions: {100 %, 25 %, 5 %} of the 160 k pool (random stratified sample on prompt hash).\n   Total grid cells: 9.  Each cell trained for 4 GPU-hours.\n\n3. Training Set-up (per cell)\n   • Same optimiser hyper-params as Exp-1.\n   • No hyper-param tuning; GAPO fixed λ=0.3, κ=3.\n\n4. Evaluation\n   • MT-Bench, AlpacaEval, Token-ECE.\n   • Record gradient-norm (ℓ2) every 10 steps; report mean±std.\n\n5. Success Criteria & Analysis\n   • Compute retention ratio  R = (metric_cell / metric_full-data).\n   • Stability flag if gradient-norm variance >2× full-data variance.\n   • Visualise metric heat-maps and gradient variance.\n\n6. Example Invocation\n   ```bash\n   for batch in 2 1 0.5; do\n     for frac in 1.0 0.25 0.05; do\n       torchrun train_pref.py --loss gapo --batch $batch --data_fraction $frac ...\n     done\n   done\n   ```\n\n===================================================================\nSHARED IMPLEMENTATION DETAILS (all experiments)\n===================================================================\n• Framework           PyTorch 2.1 + bitsandbytes 0.41, transformers 4.39.\n• Mixed-precision      bf16 everywhere; fp32 master copy for AdamW.\n• Check-pointing       every 500 steps; saved as safetensors (only LoRA weights ⇒ 35 MB each).\n• Reproducibility      TORCH_DISABLE_MPS=1; torch.manual_seed(seed); torch.use_deterministic_algorithms(True).\n• Cost Estimate        A100-80GB on-demand @ $3/hour ⇒ Exp-1 (4 variants × 3 seeds ×16h ≈ 192h) ⇒ $576.\n                       Exp-2 negligible, Exp-3   9 cells ×4h ×1 gpu ⇒ 36h ($108).\n\n==================================================================\n",
+    "expected_models": [
+        "Llama-2-7B-hf",
+        "Llama-2-7B-hf + LoRA(DiscoPOP)",
+        "Llama-2-7B-hf + LoRA(TAPS)",
+        "Llama-2-7B-hf + LoRA(FIGA+SPA)",
+        "Llama-2-7B-hf + LoRA(GAPO)"
+    ],
+    "expected_datasets": [
+        "Argilla-DPO-Mix-7k",
+        "Anthropic-HH",
+        "MT-Bench v1.3",
+        "AlpacaEval-2.0",
+        "TriviaQA",
+        "NaturalQuestions",
+        "AdvBench",
+        "MMLU",
+        "GSM8K",
+        "TruthfulQA",
+        "StackOverflow JuicedEval"
+    ]
+}
